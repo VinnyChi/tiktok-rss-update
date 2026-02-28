@@ -6,39 +6,32 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '10 */1 * * *'
-
 jobs:
   scheduled:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo content
-        uses: actions/checkout@v3
-
-      - name: Setup python
+      - name: checkout repo content
+        uses: actions/checkout@v3 # checkout the repository content to github runner.
+      - name: setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
-
-      - name: Execute py script
+          python-version: 3.12 #install the python needed
+      - name: execute py script
+        env:
+          MS_TOKEN: ${{ secrets.MS_TOKEN }}
         run: |
-          # 1. Setup Virtual Environment
+          export DISPLAY=:99
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           python3.12 -m venv venv
           source venv/bin/activate
-          
-          # 2. Install Dependencies
-          pip install playwright==1.40.0 feedgen TikTokApi
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          
-          # 3. Install Playwright Browsers and System Dependencies
-          python -m playwright install chromium
-          python -m playwright install-deps chromium
-
-          # 4. Run the Script (Auto-Token logic is inside)
+          echo "VIRTUAL ENV:" $VIRTUAL_ENV
+          pip install playwright==1.40.0
+          pip install -r requirements.txt
+          python -m playwright install
+          # playwright install-deps
           python postprocessing.py
-
-          # 5. Commit and Push changes
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git add .
-          git commit --allow-empty -m "Auto Update TikTok RSS: $(date)"
+          git commit --allow-empty -m "Latest TikTok RSS"
           git push
