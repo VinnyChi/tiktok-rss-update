@@ -20,25 +20,20 @@ jobs:
           python-version: '3.12'
 
       - name: Execute py script
-        env:
-          # We still keep the secret as a fallback, 
-          # but the script will try to generate a new one.
-          MS_TOKEN: ${{ secrets.MS_TOKEN }}
         run: |
           # 1. Setup Virtual Environment
           python3.12 -m venv venv
           source venv/bin/activate
           
           # 2. Install Dependencies
-          pip install playwright==1.40.0
+          pip install playwright==1.40.0 feedgen TikTokApi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           
           # 3. Install Playwright Browsers and System Dependencies
           python -m playwright install chromium
           python -m playwright install-deps chromium
 
-          # 4. Run the Script
-          # The postprocessing.py should be updated to handle auto-token generation
+          # 4. Run the Script (Auto-Token logic is inside)
           python postprocessing.py
 
           # 5. Commit and Push changes
