@@ -5,7 +5,7 @@ on:
       - main
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/30 * * * *'
 jobs:
   scheduled:
     runs-on: ubuntu-latest
@@ -35,5 +35,6 @@ jobs:
           git add .
           git commit --allow-empty -m "Latest TikTok RSS"
           git push
+
 
 
